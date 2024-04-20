@@ -1,0 +1,34 @@
+name: Go
+
+on:
+  push:
+    branches-ignore:
+      - "main"
+
+jobs:
+  build_go:
+    name: Test Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v5
+        with:
+          go-version: ^1.19
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
+
+      - name: Build
+        run: auto/build
+
+      - name: Test
+        run: |
+          build/palworld-api-stats_linux_amd64 -version
+          go test -v .
+
+      - name: Upload build artefacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: binaries
+          path: build/palworld-api-stats_*
