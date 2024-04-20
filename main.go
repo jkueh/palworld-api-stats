@@ -18,9 +18,11 @@ var Verbose bool
 var appVersion string = "unknown"
 
 func init() {
-
 	// Set the verbose flag
 	Verbose = strings.ToLower(os.Getenv(VerboseEnvKey)) == "true"
+}
+
+func main() {
 
 	if Verbose {
 		fmt.Println("Version:", appVersion)
@@ -45,9 +47,6 @@ func init() {
 			)
 		}
 	}
-}
-
-func main() {
 	fmt.Println("Password:", RestAPIPassword)
 
 	client := palworld_api_client.New(&palworld_api_client.RESTAPIClientConfig{
