@@ -32,12 +32,6 @@ func init() {
 		"localhost",
 		"The host that is serving the REST API.",
 	)
-	flag.StringVar(
-		&RestAPIHostname,
-		"hostname",
-		"localhost",
-		"The hostname for the server running the REST API",
-	)
 	flag.IntVar(
 		&RestAPIPort,
 		"port",
