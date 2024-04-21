@@ -7,6 +7,7 @@ import (
 )
 
 var Verbose bool
+var InfoRequested bool
 var MetricsInterval int
 var MetricsNamespace string
 
@@ -15,7 +16,8 @@ func init() {
 	var versionRequested bool
 	flag.BoolVar(&versionRequested, "version", false, "Output version information and exit.")
 	flag.BoolVar(&Verbose, "verbose", false, "Enables verbose logging.")
-	flag.IntVar(&MetricsInterval, "interval", 60, "Set how frequently (in seconds) metrics will be published")
+	flag.BoolVar(&InfoRequested, "info", false, "Outputs information about the server, then exits.")
+	flag.IntVar(&MetricsInterval, "interval", 60, "Set how frequently (in seconds) metrics will be published.")
 	flag.StringVar(
 		&MetricsNamespace,
 		"namespace",

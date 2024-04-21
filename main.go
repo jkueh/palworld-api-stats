@@ -49,10 +49,13 @@ func main() {
 		Host:     RestAPIHostname,
 	})
 
-	// info := client.GetInfo()
-	// if Verbose {
-	// 	fmt.Println("Connected to server:", info.ServerName)
-	// }
+	if InfoRequested {
+		info := client.GetInfo()
+		fmt.Println("Connected to server:", info.ServerName)
+		fmt.Println("Server version:", info.Version)
+		os.Exit(0)
+	}
+
 	interval := time.Duration(MetricsInterval) * time.Second
 	if Verbose {
 		fmt.Println("Starting ticker with interval of", interval.String())
