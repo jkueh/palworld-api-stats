@@ -3,24 +3,16 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	palworld_api_client "github.com/jkueh/palworld-api-stats/client"
 )
 
-const VerboseEnvKey string = "VERBOSE"
 const RestAPIPasswordEnvKey string = "REST_API_PASSWORD"
-const RestAPIHostnameEnvkey string = "REST_API_HOSTNAME"
+const RestAPIHostnameEnvKey string = "REST_API_HOSTNAME"
 
 var RestAPIPassword string
 var RestAPIHostname string
-var Verbose bool
 var appVersion string = "unknown"
-
-func init() {
-	// Set the verbose flag
-	Verbose = strings.ToLower(os.Getenv(VerboseEnvKey)) == "true"
-}
 
 func main() {
 
@@ -34,7 +26,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	RestAPIHostname = os.Getenv(RestAPIHostnameEnvkey)
+	RestAPIHostname = os.Getenv(RestAPIHostnameEnvKey)
 
 	if RestAPIHostname == "" {
 		RestAPIHostname = "localhost"
@@ -42,7 +34,7 @@ func main() {
 			fmt.Fprintf(
 				os.Stderr,
 				"[WARNING]: API Hostname environment variable (%s) not set, defaulting to '%s'\n",
-				RestAPIHostnameEnvkey,
+				RestAPIHostnameEnvKey,
 				RestAPIHostname,
 			)
 		}
@@ -54,7 +46,7 @@ func main() {
 		// defined... For now
 		Username: "admin",
 		Password: RestAPIPassword,
-		Host:     "127.0.0.1",
+		Host:     RestAPIHostname,
 	})
 
 	info := client.GetInfo()

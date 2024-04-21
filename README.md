@@ -1,5 +1,9 @@
 # palworld-api-stats
 
-A little helper to publish stats from the Palworld REST API endpoint
+A little helper to publish stats from the Palworld REST API endpoint to Cloudwatch.
 
-https://tech.palworldgame.com/category/rest-api/
+API Reference: https://tech.palworldgame.com/category/rest-api/
+
+## Limitations
+
+### Metrics Frequency

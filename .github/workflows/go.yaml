@@ -24,7 +24,7 @@ jobs:
 
       - name: Test
         run: |
-          # build/palworld-api-stats_linux_amd64 -version
+          build/palworld-api-stats_linux_amd64 -version
           go test -v .
 
       - name: Upload build artefacts
