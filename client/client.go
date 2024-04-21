@@ -74,3 +74,31 @@ func (c *RESTAPIClient) GetInfo() *responses.ServerInfoResponse {
 
 	return &respPayload
 }
+
+// Function to return the metrics response
+func (c *RESTAPIClient) GetMetrics() *responses.MetricsResponse {
+	var respPayload responses.MetricsResponse
+	resp, restErr := c.Do("GET", "metrics")
+	if restErr != nil {
+		fmt.Fprintln(os.Stderr, "RESTAPIClient.GetMetrics() - Error returned from API")
+		fmt.Fprintln(os.Stderr, restErr)
+		// Exit here if this fails - If this endpoint doesn't work, it's likely nothing else will
+		os.Exit(127)
+	}
+	body, bodyReadErr := io.ReadAll(resp.Body)
+	if bodyReadErr != nil {
+		fmt.Fprintln(os.Stderr, "RESTAPIClient.GetMetrics() - Unable to read response body")
+		fmt.Fprintln(os.Stderr, bodyReadErr)
+		os.Exit(128)
+	}
+
+	// Convert the (presumed) JSON body into the response payload struct
+	unmarshalErr := json.Unmarshal(body, &respPayload)
+	if unmarshalErr != nil {
+		fmt.Fprintln(os.Stderr, "RESTAPIClient.GetMetrics() - Unable to parse JSON response")
+		fmt.Fprintln(os.Stderr, bodyReadErr)
+		os.Exit(129)
+	}
+
+	return &respPayload
+}

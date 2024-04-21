@@ -57,8 +57,11 @@ func main() {
 		Host:     "127.0.0.1",
 	})
 
-	serverInfo := client.GetInfo()
+	info := client.GetInfo()
 	if Verbose {
-		fmt.Println("Connected to server:", serverInfo.ServerName)
+		fmt.Println("Connected to server:", info.ServerName)
 	}
+
+	metrics := client.GetMetrics()
+	fmt.Println("Current Server FPS:", metrics.ServerFPS)
 }
