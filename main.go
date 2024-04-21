@@ -57,5 +57,8 @@ func main() {
 		Host:     "127.0.0.1",
 	})
 
-	client.DoNothing()
+	serverInfo := client.GetInfo()
+	if Verbose {
+		fmt.Println("Connected to server:", serverInfo.ServerName)
+	}
 }
