@@ -80,6 +80,9 @@ func (c *RESTAPIClient) GetInfo() *responses.ServerInfoResponse {
 	unmarshalErr := json.Unmarshal(body, &respPayload)
 	if unmarshalErr != nil {
 		fmt.Fprintln(os.Stderr, "RESTAPIClient.GetInfo() - Unable to parse JSON response")
+		if c.config.Verbose {
+			fmt.Println(string(body))
+		}
 		fmt.Fprintln(os.Stderr, bodyReadErr)
 		os.Exit(129)
 	}
@@ -108,6 +111,9 @@ func (c *RESTAPIClient) GetMetrics() *responses.MetricsResponse {
 	unmarshalErr := json.Unmarshal(body, &respPayload)
 	if unmarshalErr != nil {
 		fmt.Fprintln(os.Stderr, "RESTAPIClient.GetMetrics() - Unable to parse JSON response")
+		if c.config.Verbose {
+			fmt.Println(string(body))
+		}
 		fmt.Fprintln(os.Stderr, bodyReadErr)
 		os.Exit(129)
 	}
