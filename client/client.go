@@ -38,9 +38,6 @@ func (c *RESTAPIClient) DoNothing() {
 // A wrapper around http.Client.Do(), so we can inject authorisation details
 func (c *RESTAPIClient) Do(method string, endpoint string) (*http.Response, error) {
 	host := fmt.Sprintf("%s:%d", c.config.Host, c.config.Port)
-	if c.config.Verbose {
-		fmt.Println("Host:", host)
-	}
 	req := http.Request{
 		Method: method,
 		URL: &url.URL{
