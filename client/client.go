@@ -76,6 +76,14 @@ func (c *RESTAPIClient) GetInfo() *responses.ServerInfoResponse {
 		os.Exit(128)
 	}
 
+	if resp.StatusCode != 200 {
+		fmt.Println("Error code returned from server:", resp.Status)
+		if len(body) > 0 {
+			fmt.Println(body)
+		}
+		os.Exit(129)
+	}
+
 	// Convert the (presumed) JSON body into the response payload struct
 	unmarshalErr := json.Unmarshal(body, &respPayload)
 	if unmarshalErr != nil {
@@ -84,7 +92,7 @@ func (c *RESTAPIClient) GetInfo() *responses.ServerInfoResponse {
 			fmt.Println(string(body))
 		}
 		fmt.Fprintln(os.Stderr, bodyReadErr)
-		os.Exit(129)
+		os.Exit(130)
 	}
 
 	return &respPayload
@@ -100,11 +108,20 @@ func (c *RESTAPIClient) GetMetrics() *responses.MetricsResponse {
 		// Exit here if this fails - If this endpoint doesn't work, it's likely nothing else will
 		os.Exit(127)
 	}
+
 	body, bodyReadErr := io.ReadAll(resp.Body)
 	if bodyReadErr != nil {
 		fmt.Fprintln(os.Stderr, "RESTAPIClient.GetMetrics() - Unable to read response body")
 		fmt.Fprintln(os.Stderr, bodyReadErr)
 		os.Exit(128)
+	}
+
+	if resp.StatusCode != 200 {
+		fmt.Println("Error code returned from server:", resp.Status)
+		if len(body) > 0 {
+			fmt.Println(body)
+		}
+		os.Exit(129)
 	}
 
 	// Convert the (presumed) JSON body into the response payload struct
@@ -115,7 +132,7 @@ func (c *RESTAPIClient) GetMetrics() *responses.MetricsResponse {
 			fmt.Println(string(body))
 		}
 		fmt.Fprintln(os.Stderr, bodyReadErr)
-		os.Exit(129)
+		os.Exit(130)
 	}
 
 	return &respPayload
