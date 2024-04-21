@@ -15,6 +15,7 @@ type RESTAPIClientConfig struct {
 	Host     string
 	Username string
 	Password string
+	Port     int
 }
 
 type RESTAPIClient struct {
@@ -42,7 +43,7 @@ func (c *RESTAPIClient) Do(method string, endpoint string) (*http.Response, erro
 			// public internet
 			Scheme: "http",
 			User:   url.UserPassword(c.config.Username, c.config.Password),
-			Host:   c.config.Host,
+			Host:   fmt.Sprintf("%s:%d", c.config.Host, c.config.Port),
 			Path:   fmt.Sprintf("/v1/api/%s", endpoint),
 		},
 		Header: map[string][]string{

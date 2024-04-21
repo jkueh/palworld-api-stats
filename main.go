@@ -12,7 +12,6 @@ const RestAPIPasswordEnvKey string = "REST_API_PASSWORD"
 const RestAPIHostnameEnvKey string = "REST_API_HOSTNAME"
 
 var RestAPIPassword string
-var RestAPIHostname string
 var appVersion string = "unknown"
 
 func main() {
@@ -25,20 +24,6 @@ func main() {
 	if RestAPIPassword == "" {
 		fmt.Fprintf(os.Stderr, "Error: API Password environment variable (%s) not set\n", RestAPIPasswordEnvKey)
 		os.Exit(1)
-	}
-
-	RestAPIHostname = os.Getenv(RestAPIHostnameEnvKey)
-
-	if RestAPIHostname == "" {
-		RestAPIHostname = "localhost"
-		if Verbose {
-			fmt.Fprintf(
-				os.Stderr,
-				"[WARNING]: API Hostname environment variable (%s) not set, defaulting to '%s'\n",
-				RestAPIHostnameEnvKey,
-				RestAPIHostname,
-			)
-		}
 	}
 
 	client := palworld_api_client.New(&palworld_api_client.RESTAPIClientConfig{

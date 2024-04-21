@@ -10,6 +10,8 @@ var Verbose bool
 var InfoRequested bool
 var MetricsInterval int
 var MetricsNamespace string
+var RestAPIHostname string
+var RestAPIPort int
 
 func init() {
 	// Set the verbose flag
@@ -28,7 +30,19 @@ func init() {
 		&RestAPIHostname,
 		"hostname",
 		"localhost",
-		"The host that is serving the rest API",
+		"The host that is serving the REST API.",
+	)
+	flag.StringVar(
+		&RestAPIHostname,
+		"hostname",
+		"localhost",
+		"The hostname for the server running the REST API",
+	)
+	flag.IntVar(
+		&RestAPIPort,
+		"port",
+		8212,
+		"The port that the REST API service is listening to.",
 	)
 
 	flag.Parse()
