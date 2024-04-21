@@ -44,12 +44,16 @@ func (c *RESTAPIClient) Do(method string, endpoint string) (*http.Response, erro
 		},
 	}
 	req.Header.Add("Content-type", "application/json")
+	// TODO: Connection timeout using http.Transport
+	// (e.g. in the case of high-frequency metrics publishing, it makes more sense to omit than publish old data late)
 	return c.client.Do(&req)
 }
 
 // Convenience method for /info, great as a pre-flight check
 func (c *RESTAPIClient) GetInfo() *responses.ServerInfoResponse {
 	var respPayload responses.ServerInfoResponse
+	// TODO: 	Find a good way to abstract this logic so it's not copy-paste every time, while retaining some degree of
+	// 				decent error handling
 	resp, restErr := c.Do("GET", "info")
 	if restErr != nil {
 		fmt.Fprintln(os.Stderr, "RESTAPIClient.GetInfo() - Error returned from API")
