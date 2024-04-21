@@ -32,6 +32,7 @@ func main() {
 		Username: "admin",
 		Password: RestAPIPassword,
 		Host:     RestAPIHostname,
+		Verbose:  Verbose,
 	})
 
 	if InfoRequested {
