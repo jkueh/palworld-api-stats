@@ -38,6 +38,8 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           push: true
+          build-args: |
+            app_version=${{ github.ref_name }}-${{ github.sha }}
           tags: |
             ghcr.io/${{ github.repository }}:latest
             ghcr.io/${{ github.repository }}:${{ github.ref_name }}
