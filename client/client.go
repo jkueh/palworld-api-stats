@@ -38,12 +38,17 @@ func (c *RESTAPIClient) Do(method string, endpoint string) (*http.Response, erro
 	req := http.Request{
 		Method: method,
 		URL: &url.URL{
-			User: url.UserPassword(c.config.Username, c.config.Password),
-			Host: c.config.Host,
-			Path: fmt.Sprintf("/v1/api/%s", endpoint),
+			// We're assuming no one's doing mutual TLS here, or something strange like exposing their API endpoints to the
+			// public internet
+			Scheme: "http",
+			User:   url.UserPassword(c.config.Username, c.config.Password),
+			Host:   c.config.Host,
+			Path:   fmt.Sprintf("/v1/api/%s", endpoint),
+		},
+		Header: map[string][]string{
+			"content-type": {"application/json"},
 		},
 	}
-	req.Header.Add("Content-type", "application/json")
 	// TODO: Connection timeout using http.Transport
 	// (e.g. in the case of high-frequency metrics publishing, it makes more sense to omit than publish old data late)
 	return c.client.Do(&req)

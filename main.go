@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	palworld_api_client "github.com/jkueh/palworld-api-stats/client"
 )
@@ -39,7 +40,6 @@ func main() {
 			)
 		}
 	}
-	fmt.Println("Password:", RestAPIPassword)
 
 	client := palworld_api_client.New(&palworld_api_client.RESTAPIClientConfig{
 		// As far as I can tell, there's no way to change the username on the REST API side, so leaving it statically
@@ -49,11 +49,25 @@ func main() {
 		Host:     RestAPIHostname,
 	})
 
-	info := client.GetInfo()
+	// info := client.GetInfo()
+	// if Verbose {
+	// 	fmt.Println("Connected to server:", info.ServerName)
+	// }
+	interval := time.Duration(MetricsInterval) * time.Second
 	if Verbose {
-		fmt.Println("Connected to server:", info.ServerName)
+		fmt.Println("Starting ticker with interval of", interval.String())
+	}
+	for range time.Tick(interval) {
+		go func() {
+			PublishMetric(&client)
+			if Verbose {
+				fmt.Println("Published metric at:", time.Now().String())
+			}
+		}()
 	}
 
-	metrics := client.GetMetrics()
-	fmt.Println("Current Server FPS:", metrics.ServerFPS)
+	if Verbose {
+		fmt.Println("Done!")
+	}
+
 }
