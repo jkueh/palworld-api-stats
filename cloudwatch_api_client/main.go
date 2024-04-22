@@ -1,8 +1,9 @@
 package cloudwatch_api_client
 
 import (
-	"fmt"
+	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
 	"github.com/jkueh/palworld-api-stats/types/responses"
@@ -27,6 +28,19 @@ func New(config *ClientConfig) *Client {
 }
 
 func (c *Client) PublishMetrics(m *responses.MetricsResponse) {
-	fmt.Println("Server FPS:", m.ServerFPS)
-	fmt.Println("Not yet implemented")
+	var metricData []*cloudwatch.MetricDatum
+
+	metricTime := time.Now()
+
+	metricData = append(metricData, &cloudwatch.MetricDatum{
+		MetricName: aws.String("ServerFPS"),
+		Timestamp:  &metricTime,
+		Unit:       aws.String("FPS"),
+		Values:     []*float64{aws.Float64(float64(m.ServerFPS))},
+	})
+
+	c.client.PutMetricData(&cloudwatch.PutMetricDataInput{
+		Namespace:  &c.config.MetricsNamespace,
+		MetricData: metricData,
+	})
 }
