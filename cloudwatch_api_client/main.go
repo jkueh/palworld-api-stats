@@ -14,6 +14,8 @@ import (
 type ClientConfig struct {
 	MetricsNamespace string
 	Region           string
+	Verbose          bool
+	Debug            bool
 }
 
 type Client struct {
@@ -24,6 +26,9 @@ type Client struct {
 // Returns the Client struct, populated with an active cloudwatch client
 func New(config *ClientConfig) *Client {
 	session := session.Must(session.NewSession())
+	if config.Verbose {
+		fmt.Println("Configuring Cloudwatch for region:", config.Region)
+	}
 	return &Client{
 		config: config,
 		client: cloudwatch.New(session, &aws.Config{
