@@ -1,4 +1,4 @@
-package palworld_api_client
+package api_client
 
 import (
 	"encoding/json"
@@ -11,32 +11,33 @@ import (
 	"github.com/jkueh/palworld-api-stats/types/responses"
 )
 
-type RESTAPIClientConfig struct {
+type ClientConfig struct {
 	Host     string
 	Username string
 	Password string
 	Port     int
 	Verbose  bool
+	Debug    bool
 }
 
-type RESTAPIClient struct {
-	config *RESTAPIClientConfig
+type Client struct {
+	config *ClientConfig
 	client http.Client
 }
 
-func New(c *RESTAPIClientConfig) RESTAPIClient {
-	return RESTAPIClient{
+func New(c *ClientConfig) Client {
+	return Client{
 		config: c,
 		client: http.Client{},
 	}
 }
 
-func (c *RESTAPIClient) DoNothing() {
+func (c *Client) DoNothing() {
 	fmt.Println("Nothing: Done")
 }
 
 // A wrapper around http.Client.Do(), so we can inject authorisation details
-func (c *RESTAPIClient) Do(method string, endpoint string) (*http.Response, error) {
+func (c *Client) Do(method string, endpoint string) (*http.Response, error) {
 	host := fmt.Sprintf("%s:%d", c.config.Host, c.config.Port)
 	req := http.Request{
 		Method: method,
@@ -58,7 +59,7 @@ func (c *RESTAPIClient) Do(method string, endpoint string) (*http.Response, erro
 }
 
 // Convenience method for /info, great as a pre-flight check
-func (c *RESTAPIClient) GetInfo() *responses.ServerInfoResponse {
+func (c *Client) GetInfo() *responses.ServerInfoResponse {
 	var respPayload responses.ServerInfoResponse
 	// TODO: 	Find a good way to abstract this logic so it's not copy-paste every time, while retaining some degree of
 	// 				decent error handling
@@ -99,7 +100,7 @@ func (c *RESTAPIClient) GetInfo() *responses.ServerInfoResponse {
 }
 
 // Function to return the metrics response
-func (c *RESTAPIClient) GetMetrics() *responses.MetricsResponse {
+func (c *Client) GetMetrics() *responses.MetricsResponse {
 	var respPayload responses.MetricsResponse
 	resp, restErr := c.Do("GET", "metrics")
 	if restErr != nil {

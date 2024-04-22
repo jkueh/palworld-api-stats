@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	palworld_api_client "github.com/jkueh/palworld-api-stats/client"
+	palworld_api_client "github.com/jkueh/palworld-api-stats/palworld_api_client"
 )
 
 const RestAPIPasswordEnvKey string = "REST_API_PASSWORD"
@@ -26,7 +26,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	client := palworld_api_client.New(&palworld_api_client.RESTAPIClientConfig{
+	client := palworld_api_client.New(&palworld_api_client.ClientConfig{
 		// As far as I can tell, there's no way to change the username on the REST API side, so leaving it statically
 		// defined... For now
 		Username: "admin",
@@ -34,6 +34,7 @@ func main() {
 		Host:     RestAPIHostname,
 		Port:     RestAPIPort,
 		Verbose:  Verbose,
+		Debug:    Debug,
 	})
 
 	if InfoRequested {
