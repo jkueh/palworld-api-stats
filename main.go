@@ -18,7 +18,7 @@ var appVersion string = "unknown"
 func main() {
 
 	if Verbose {
-		fmt.Println("Version:", appVersion)
+		fmt.Println("Starting: Version ", appVersion)
 	}
 
 	RestAPIPassword = os.Getenv(RestAPIPasswordEnvKey)
