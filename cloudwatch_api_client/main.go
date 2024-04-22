@@ -25,15 +25,15 @@ type Client struct {
 
 // Returns the Client struct, populated with an active cloudwatch client
 func New(config *ClientConfig) *Client {
-	session := session.Must(session.NewSession())
+	session := session.Must(session.NewSession(&aws.Config{
+		Region: &config.Region,
+	}))
 	if config.Verbose {
 		fmt.Println("Configuring Cloudwatch for region:", config.Region)
 	}
 	return &Client{
 		config: config,
-		client: cloudwatch.New(session, &aws.Config{
-			Region: &config.Region,
-		}),
+		client: cloudwatch.New(session),
 	}
 }
 
