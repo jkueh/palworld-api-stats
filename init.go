@@ -14,7 +14,7 @@ var MetricsNamespace string
 var RestAPIHostname string
 var RestAPIPort int
 var CloudwatchRegion string
-var CloudwatchStorageResolution int
+var CloudwatchStorageResolution int64
 
 func init() {
 	// Set the verbose flag
@@ -48,7 +48,7 @@ func init() {
 		"",
 		"The AWS region to publish Cloudwatch metrics to",
 	)
-	flag.IntVar(
+	flag.Int64Var(
 		&CloudwatchStorageResolution,
 		"cloudwatch-storage-resolution",
 		60,
