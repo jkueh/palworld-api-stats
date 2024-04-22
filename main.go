@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/jkueh/palworld-api-stats/cloudwatch_api_client"
 	palworld_api_client "github.com/jkueh/palworld-api-stats/palworld_api_client"
 )
 
@@ -26,7 +27,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	client := palworld_api_client.New(&palworld_api_client.ClientConfig{
+	palworld_client := palworld_api_client.New(&palworld_api_client.ClientConfig{
 		// As far as I can tell, there's no way to change the username on the REST API side, so leaving it statically
 		// defined... For now
 		Username: "admin",
@@ -38,11 +39,16 @@ func main() {
 	})
 
 	if InfoRequested {
-		info := client.GetInfo()
+		info := palworld_client.GetInfo()
 		fmt.Println("Connected to server:", info.ServerName)
 		fmt.Println("Server version:", info.Version)
 		os.Exit(0)
 	}
+
+	// Get the Cloudwatch client struct
+	cloudwatch_client := cloudwatch_api_client.New(&cloudwatch_api_client.ClientConfig{
+		MetricsNamespace: MetricsNamespace,
+	})
 
 	interval := time.Duration(MetricsInterval) * time.Second
 	if Verbose {
@@ -50,9 +56,9 @@ func main() {
 	}
 	for range time.Tick(interval) {
 		go func() {
-			PublishMetric(&client)
-			if Verbose {
-				fmt.Println("Published metric at:", time.Now().String())
+			cloudwatch_client.PublishMetrics(palworld_client.GetMetrics())
+			if Debug {
+				fmt.Println("PublishMetrics() called at:", time.Now().String())
 			}
 		}()
 	}

@@ -32,10 +32,6 @@ func New(c *ClientConfig) Client {
 	}
 }
 
-func (c *Client) DoNothing() {
-	fmt.Println("Nothing: Done")
-}
-
 // A wrapper around http.Client.Do(), so we can inject authorisation details
 func (c *Client) Do(method string, endpoint string) (*http.Response, error) {
 	host := fmt.Sprintf("%s:%d", c.config.Host, c.config.Port)
@@ -125,8 +121,8 @@ func (c *Client) GetMetrics() *responses.MetricsResponse {
 		os.Exit(129)
 	}
 
-	if c.config.Verbose {
-		fmt.Println("Received", resp.StatusCode, "response from server")
+	if c.config.Debug {
+		fmt.Println("Received", resp.StatusCode, "response from metrics endpoint")
 	}
 
 	// Convert the (presumed) JSON body into the response payload struct
