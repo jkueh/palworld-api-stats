@@ -13,6 +13,7 @@ import (
 
 type ClientConfig struct {
 	MetricsNamespace string
+	Region           string
 }
 
 type Client struct {
@@ -25,7 +26,9 @@ func New(config *ClientConfig) *Client {
 	session := session.Must(session.NewSession())
 	return &Client{
 		config: config,
-		client: cloudwatch.New(session),
+		client: cloudwatch.New(session, &aws.Config{
+			Region: &config.Region,
+		}),
 	}
 }
 

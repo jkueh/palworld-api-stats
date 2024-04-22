@@ -13,6 +13,7 @@ var MetricsInterval int
 var MetricsNamespace string
 var RestAPIHostname string
 var RestAPIPort int
+var CloudwatchRegion string
 
 func init() {
 	// Set the verbose flag
@@ -40,6 +41,12 @@ func init() {
 		8212,
 		"The port that the REST API service is listening to.",
 	)
+	flag.StringVar(
+		&CloudwatchRegion,
+		"cloudwatch-region",
+		"",
+		"The AWS region to publish Cloudwatch metrics to",
+	)
 
 	flag.Parse()
 
@@ -47,5 +54,11 @@ func init() {
 	if versionRequested {
 		fmt.Println("Version:", appVersion)
 		os.Exit(0)
+	}
+
+	// Double check that we actually have a manually-specified value for the cloudwatch region
+	if CloudwatchRegion == "" {
+		fmt.Fprintln(os.Stderr, "Error: Cloudwatch Region (-cloudwatch-region) not specified.")
+		os.Exit(1)
 	}
 }
