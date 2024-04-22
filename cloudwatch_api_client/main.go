@@ -1,6 +1,8 @@
 package cloudwatch_api_client
 
 import (
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -39,8 +41,12 @@ func (c *Client) PublishMetrics(m *responses.MetricsResponse) {
 		Values:     []*float64{aws.Float64(float64(m.ServerFPS))},
 	})
 
-	c.client.PutMetricData(&cloudwatch.PutMetricDataInput{
+	_, err := c.client.PutMetricData(&cloudwatch.PutMetricDataInput{
 		Namespace:  &c.config.MetricsNamespace,
 		MetricData: metricData,
 	})
+	if err != nil {
+		fmt.Println("An error occurred while publishing metrics:", err)
+		os.Exit(127)
+	}
 }
