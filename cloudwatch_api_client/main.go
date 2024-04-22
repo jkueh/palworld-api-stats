@@ -45,7 +45,6 @@ func (c *Client) PublishMetrics(m *responses.MetricsResponse) {
 	metricData = append(metricData, &cloudwatch.MetricDatum{
 		MetricName: aws.String("ServerFPS"),
 		Timestamp:  &metricTime,
-		Unit:       aws.String("FPS"),
 		Values:     []*float64{aws.Float64(float64(m.ServerFPS))},
 	})
 
