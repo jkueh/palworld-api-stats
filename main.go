@@ -47,10 +47,11 @@ func main() {
 
 	// Get the Cloudwatch client struct
 	cloudwatch_client := cloudwatch_api_client.New(&cloudwatch_api_client.ClientConfig{
-		Region:           CloudwatchRegion,
-		MetricsNamespace: MetricsNamespace,
-		Verbose:          Verbose,
-		Debug:            Debug,
+		Region:                      CloudwatchRegion,
+		MetricsNamespace:            MetricsNamespace,
+		Verbose:                     Verbose,
+		Debug:                       Debug,
+		CloudwatchStorageResolution: CloudwatchStorageResolution,
 	})
 
 	interval := time.Duration(MetricsInterval) * time.Second

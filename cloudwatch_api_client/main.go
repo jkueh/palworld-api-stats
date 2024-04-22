@@ -12,10 +12,11 @@ import (
 )
 
 type ClientConfig struct {
-	MetricsNamespace string
-	Region           string
-	Verbose          bool
-	Debug            bool
+	MetricsNamespace            string
+	Region                      string
+	Verbose                     bool
+	Debug                       bool
+	CloudwatchStorageResolution int64
 }
 
 type Client struct {
@@ -43,19 +44,22 @@ func (c *Client) PublishMetrics(m *responses.MetricsResponse) {
 	metricTime := time.Now()
 
 	metricData = append(metricData, &cloudwatch.MetricDatum{
-		MetricName: aws.String("ServerFPS"),
-		Timestamp:  &metricTime,
-		Values:     []*float64{aws.Float64(float64(m.ServerFPS))},
+		MetricName:        aws.String("ServerFPS"),
+		Timestamp:         &metricTime,
+		Values:            []*float64{aws.Float64(float64(m.ServerFPS))},
+		StorageResolution: &c.config.CloudwatchStorageResolution,
 	})
 	metricData = append(metricData, &cloudwatch.MetricDatum{
-		MetricName: aws.String("CurrentPlayerNum"),
-		Timestamp:  &metricTime,
-		Values:     []*float64{aws.Float64(float64(m.CurrentPlayerNum))},
+		MetricName:        aws.String("CurrentPlayerNum"),
+		Timestamp:         &metricTime,
+		Values:            []*float64{aws.Float64(float64(m.CurrentPlayerNum))},
+		StorageResolution: &c.config.CloudwatchStorageResolution,
 	})
 	metricData = append(metricData, &cloudwatch.MetricDatum{
-		MetricName: aws.String("ServerFrameTime"),
-		Timestamp:  &metricTime,
-		Values:     []*float64{aws.Float64(m.ServerFrameTime)},
+		MetricName:        aws.String("ServerFrameTime"),
+		Timestamp:         &metricTime,
+		Values:            []*float64{aws.Float64(m.ServerFrameTime)},
+		StorageResolution: &c.config.CloudwatchStorageResolution,
 	})
 
 	_, err := c.client.PutMetricData(&cloudwatch.PutMetricDataInput{
