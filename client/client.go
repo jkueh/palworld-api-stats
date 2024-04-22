@@ -124,6 +124,10 @@ func (c *RESTAPIClient) GetMetrics() *responses.MetricsResponse {
 		os.Exit(129)
 	}
 
+	if c.config.Verbose {
+		fmt.Println("Received", resp.StatusCode, "response from server")
+	}
+
 	// Convert the (presumed) JSON body into the response payload struct
 	unmarshalErr := json.Unmarshal(body, &respPayload)
 	if unmarshalErr != nil {
