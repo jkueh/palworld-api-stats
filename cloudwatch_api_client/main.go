@@ -47,6 +47,16 @@ func (c *Client) PublishMetrics(m *responses.MetricsResponse) {
 		Timestamp:  &metricTime,
 		Values:     []*float64{aws.Float64(float64(m.ServerFPS))},
 	})
+	metricData = append(metricData, &cloudwatch.MetricDatum{
+		MetricName: aws.String("CurrentPlayerNum"),
+		Timestamp:  &metricTime,
+		Values:     []*float64{aws.Float64(float64(m.CurrentPlayerNum))},
+	})
+	metricData = append(metricData, &cloudwatch.MetricDatum{
+		MetricName: aws.String("ServerFrameTime"),
+		Timestamp:  &metricTime,
+		Values:     []*float64{aws.Float64(m.ServerFrameTime)},
+	})
 
 	_, err := c.client.PutMetricData(&cloudwatch.PutMetricDataInput{
 		Namespace:  &c.config.MetricsNamespace,
