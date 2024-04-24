@@ -10,7 +10,6 @@ import (
 )
 
 const RestAPIPasswordEnvKey string = "REST_API_PASSWORD"
-const RestAPIHostnameEnvKey string = "REST_API_HOSTNAME"
 
 var RestAPIPassword string
 var appVersion string = "unknown"
@@ -62,13 +61,9 @@ func main() {
 		go func() {
 			cloudwatch_client.PublishMetrics(palworld_client.GetMetrics())
 			if Debug {
-				fmt.Println("PublishMetrics() called at:", time.Now().String())
+				fmt.Println("PublishMetrics() finished execution at:", time.Now().String())
 			}
 		}()
-	}
-
-	if Verbose {
-		fmt.Println("Done!")
 	}
 
 }
