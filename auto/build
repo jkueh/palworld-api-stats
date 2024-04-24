@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+set -eu
+
+GITHUB_VERSION="$(grep '^v' <<<"${GITHUB_REF_NAME}" || true)"
+GIT_SHA="$(git rev-parse --verify HEAD)"
+
+function getVersion() {
+  if [ ! -z "${GITHUB_VERSION}" ]; then
+    echo "${GITHUB_VERSION}"
+  elif [ ! -z "${GIT_SHA}" ]; then
+    echo "${GIT_SHA}"
+  else
+    echo "unknown"
+  fi
+}
+
+APP_VERSION="$(getVersion)"
+
+function buildCommand() {
+  OUTPUT_PATH="build/palworld-api-stats_${GOOS}_${GOARCH}"
+  echo "Building: ${OUTPUT_PATH}"
+  go build -v \
+    -ldflags \
+    "-X 'main.cacheDir=${CACHE_DIR:-""}' -X 'main.appVersion=${APP_VERSION}'" \
+    -o "${OUTPUT_PATH}${FILE_EXT:-""}" \
+    "${@}"
+}
+
+# Note to self: A full list can be found by running 'go tool dist list'.
+
+rm -v build/palworld-api-stats_* 2>/dev/null || true
+
+GOOS=linux GOARCH=amd64 CACHE_DIR="/tmp/palworld-api-stats" buildCommand "${@}"
+GOOS=darwin GOARCH=amd64 CACHE_DIR="/tmp/palworld-api-stats" buildCommand "${@}"
+GOOS=linux GOARCH=arm64 CACHE_DIR="/tmp/palworld-api-stats" buildCommand "${@}"
+GOOS=linux GOARCH=mips64 CACHE_DIR="/tmp/palworld-api-stats" buildCommand "${@}"
+GOOS=windows GOARCH=amd64 FILE_EXT=".exe" buildCommand "${@}"
+
+chmod 755 build/palworld-api-stats*
