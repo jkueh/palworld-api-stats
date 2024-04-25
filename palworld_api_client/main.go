@@ -2,6 +2,7 @@ package api_client
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -33,8 +34,11 @@ func New(c *ClientConfig) Client {
 }
 
 // A wrapper around http.Client.Do(), so we can inject authorisation details
-func (c *Client) Do(method string, endpoint string) (*http.Response, error) {
+func (c *Client) Do(method string, endpoint string) ([]byte, error) {
 	host := fmt.Sprintf("%s:%d", c.config.Host, c.config.Port)
+
+	// TODO: Connection timeout using http.Transport
+	// (e.g. in the case of high-frequency metrics publishing, it makes more sense to omit than publish old data late)
 	req := http.Request{
 		Method: method,
 		URL: &url.URL{
@@ -49,36 +53,50 @@ func (c *Client) Do(method string, endpoint string) (*http.Response, error) {
 			"content-type": {"application/json"},
 		},
 	}
-	// TODO: Connection timeout using http.Transport
-	// (e.g. in the case of high-frequency metrics publishing, it makes more sense to omit than publish old data late)
-	return c.client.Do(&req)
-}
 
-// Convenience method for /info, great as a pre-flight check
-func (c *Client) GetInfo() *responses.ServerInfoResponse {
-	var respPayload responses.ServerInfoResponse
-	// TODO: 	Find a good way to abstract this logic so it's not copy-paste every time, while retaining some degree of
-	// 				decent error handling
-	resp, restErr := c.Do("GET", "info")
-	if restErr != nil {
-		fmt.Fprintln(os.Stderr, "RESTAPIClient.GetInfo() - Error returned from API")
-		fmt.Fprintln(os.Stderr, restErr)
-		// Exit here if this fails - If this endpoint doesn't work, it's likely nothing else will
-		os.Exit(127)
+	resp, respErr := c.client.Do(&req)
+	if respErr != nil {
+		fmt.Fprintf(os.Stderr, "palworld_api_client.Client.Do() - Error returned from '%s' endpoint\n", endpoint)
+		fmt.Fprintln(os.Stderr, respErr)
+		return []byte{}, respErr
 	}
+
+	// Check to see if we can read the response body
 	body, bodyReadErr := io.ReadAll(resp.Body)
 	if bodyReadErr != nil {
-		fmt.Fprintln(os.Stderr, "RESTAPIClient.GetInfo() - Unable to read response body")
+		fmt.Fprintf(
+			os.Stderr,
+			"palworld_api_client.Client.Do() - Unable to read response body from '%s' endpoint",
+			endpoint,
+		)
 		fmt.Fprintln(os.Stderr, bodyReadErr)
-		os.Exit(128)
+		return []byte{}, &BodyReadError{error: bodyReadErr}
 	}
 
+	// Check for a non-200 response code
 	if resp.StatusCode != 200 {
 		fmt.Println("Error code returned from server:", resp.Status)
 		if len(body) > 0 {
 			fmt.Println(body)
 		}
-		os.Exit(129)
+		return []byte{}, &Non200Error{statusCode: resp.StatusCode}
+	}
+
+	return body, nil
+}
+
+// Convenience method for /info, great as a pre-flight check
+func (c *Client) GetInfo() *responses.ServerInfoResponse {
+	var respPayload responses.ServerInfoResponse
+	body, doErr := c.Do("GET", "info")
+	if doErr != nil {
+		if errors.As(doErr, &Non200Error{}) {
+			os.Exit(128)
+		} else if errors.As(doErr, &BodyReadError{}) {
+			os.Exit(129)
+		} else {
+			fmt.Fprintln(os.Stderr, "GetInfo(): Unhandled error", doErr)
+		}
 	}
 
 	// Convert the (presumed) JSON body into the response payload struct
@@ -88,7 +106,7 @@ func (c *Client) GetInfo() *responses.ServerInfoResponse {
 		if c.config.Verbose {
 			fmt.Println(string(body))
 		}
-		fmt.Fprintln(os.Stderr, bodyReadErr)
+		fmt.Fprintln(os.Stderr, unmarshalErr)
 		os.Exit(130)
 	}
 
@@ -98,41 +116,25 @@ func (c *Client) GetInfo() *responses.ServerInfoResponse {
 // Function to return the metrics response
 func (c *Client) GetMetrics() *responses.MetricsResponse {
 	var respPayload responses.MetricsResponse
-	resp, restErr := c.Do("GET", "metrics")
-	if restErr != nil {
-		fmt.Fprintln(os.Stderr, "RESTAPIClient.GetMetrics() - Error returned from API")
-		fmt.Fprintln(os.Stderr, restErr)
-		// Exit here if this fails - If this endpoint doesn't work, it's likely nothing else will
-		os.Exit(127)
-	}
-
-	body, bodyReadErr := io.ReadAll(resp.Body)
-	if bodyReadErr != nil {
-		fmt.Fprintln(os.Stderr, "RESTAPIClient.GetMetrics() - Unable to read response body")
-		fmt.Fprintln(os.Stderr, bodyReadErr)
-		os.Exit(128)
-	}
-
-	if resp.StatusCode != 200 {
-		fmt.Println("Error code returned from server:", resp.Status)
-		if len(body) > 0 {
-			fmt.Println(body)
+	body, doErr := c.Do("GET", "metrics")
+	if doErr != nil {
+		if errors.As(doErr, &Non200Error{}) {
+			os.Exit(128)
+		} else if errors.As(doErr, &BodyReadError{}) {
+			os.Exit(129)
+		} else {
+			fmt.Fprintln(os.Stderr, "GetMetrics(): Unhandled error", doErr)
 		}
-		os.Exit(129)
-	}
-
-	if c.config.Debug {
-		fmt.Println("Received", resp.StatusCode, "response from metrics endpoint")
 	}
 
 	// Convert the (presumed) JSON body into the response payload struct
 	unmarshalErr := json.Unmarshal(body, &respPayload)
 	if unmarshalErr != nil {
-		fmt.Fprintln(os.Stderr, "RESTAPIClient.GetMetrics() - Unable to parse JSON response")
+		fmt.Fprintln(os.Stderr, "GetMetrics() - Unable to parse JSON response")
 		if c.config.Verbose {
 			fmt.Println(string(body))
 		}
-		fmt.Fprintln(os.Stderr, bodyReadErr)
+		fmt.Fprintln(os.Stderr, unmarshalErr)
 		os.Exit(130)
 	}
 
